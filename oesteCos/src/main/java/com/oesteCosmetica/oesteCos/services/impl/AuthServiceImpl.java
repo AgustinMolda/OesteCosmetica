@@ -27,31 +27,31 @@ public class AuthServiceImpl implements IAuthService {
     @Autowired
     private UserValidation userValidation;
 
+
     @Override
-    public HashMap<String,String> login(LoginDTO login) throws Exception {
-
+    public HashMap<String, String> login(LoginDTO loginRequest) throws Exception {
         try {
-            HashMap<String,String> jwt = new HashMap<>();
-            Optional<UserEntity> user = userRepository.findByUsername(login.getUserName());
+            HashMap<String, String> jwt = new HashMap<>();
+            Optional<UserEntity> user = userRepository.findByUsername(loginRequest.getUsername());
 
-            if(user.isEmpty()){
+            if (user.isEmpty()) {
                 jwt.put("error", "User not registered!");
                 return jwt;
             }
-
-            if(verifyPassword(login.getPassword(),user.get().getPassword())){
+            if (verifyPassword(loginRequest.getPassword(), user.get().getPassword())) {
                 jwt.put("jwt", jwtUtilitiesService.generateJWT(user.get().getId()));
-            }else{
+            } else {
                 jwt.put("error", "Authentication failed");
             }
             return jwt;
-
-        }catch (Exception e){
-            throw new Exception(e.toString());
-
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error generating JWT: " + e.getMessage());
+            throw new Exception("Error generating JWT", e);
+        } catch (Exception e) {
+            System.err.println("Unknown error: " + e.toString());
+            throw new Exception("Unknown error", e);
         }
     }
-
     @Override
     public ResponseDTO register(UserEntity user) throws Exception{
 
