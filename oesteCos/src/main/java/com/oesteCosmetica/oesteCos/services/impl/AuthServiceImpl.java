@@ -5,13 +5,17 @@ import com.oesteCosmetica.oesteCos.presistence.repositories.UserRepository;
 import com.oesteCosmetica.oesteCos.services.IAuthService;
 import com.oesteCosmetica.oesteCos.services.IJwtUtilitiesService;
 import com.oesteCosmetica.oesteCos.services.models.dtos.LoginDTO;
+import com.oesteCosmetica.oesteCos.services.models.dtos.ResponseDTO;
 import com.oesteCosmetica.oesteCos.services.models.validations.UserValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
+@Service
 public class AuthServiceImpl implements IAuthService {
 
     @Autowired
@@ -47,6 +51,37 @@ public class AuthServiceImpl implements IAuthService {
 
         }
     }
+
+    @Override
+    public ResponseDTO register(UserEntity user) throws Exception{
+
+        try{
+            ResponseDTO response = userValidation.validate(user);
+
+            if(response.getNumOfErrors() > 0){
+                return response;
+            }
+                List<UserEntity> getAllUsers = userRepository.findAll();
+
+
+            for (UserEntity existingUser : getAllUsers) {
+                if (existingUser.getUsername().equals(user.getUsername())) {
+                    response.setMessage("User already exists!");
+                    return response;
+                }
+                // Agrega más comparaciones de campos relevantes según sea necesario.
+            }
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+            user.setPassword(encoder.encode(user.getPassword()));
+            userRepository.save(user);
+            response.setMessage("User created successfully!");
+            return response;
+
+        }catch (Exception e){
+            throw new Exception(e.toString());
+        }
+    }
+
 
     private boolean verifyPassword(String eneterdPassword, String storedPassword){
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
