@@ -7,6 +7,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,10 +19,13 @@ import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.util.Collections;
 
+@AllArgsConstructor
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
    @Autowired
   private  IJwtUtilitiesService jwtUtilitiesService;
+
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
